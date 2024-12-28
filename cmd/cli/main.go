@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"task-tracker/internal/storage"
 	"task-tracker/internal/task"
@@ -11,12 +10,14 @@ func main() {
 	// criando uma task
 	task1 := task.NewTask("clean the house")
 
-	fmt.Println(task1)
-
-	f1 := storage.NewFile("task1")
+	f1 := storage.NewFile()
 
 	if err := f1.CreateFile(); err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 
+	err := f1.WriteFile(task1)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
