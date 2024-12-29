@@ -11,12 +11,25 @@ func main() {
 	// criando uma task
 	task1 := task.NewTask("clean the house")
 
-	fmt.Println(task1)
-
-	f1 := storage.NewFile("task1")
+	// Create file
+	f1 := storage.NewFile()
 
 	if err := f1.CreateFile(); err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
+
+	// Write file
+	err := f1.WriteFile(task1)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Read file
+	data, err := f1.ReadFile()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(data))
 
 }
