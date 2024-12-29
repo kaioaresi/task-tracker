@@ -76,3 +76,11 @@ func (f *File) WriteFile(t *task.Task) error {
 	log.Println("File writing file...", f.Name)
 	return nil
 }
+
+func (f *File) ReadFile() ([]byte, error) {
+	data, err := os.ReadFile(f.Name)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
