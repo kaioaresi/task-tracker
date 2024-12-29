@@ -1,35 +1,37 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"task-tracker/internal/storage"
-	"task-tracker/internal/task"
 )
 
 func main() {
-	// criando uma task
-	task1 := task.NewTask("clean the house")
 
 	// Create file
 	f1 := storage.NewFile()
-
-	if err := f1.CreateFile(); err != nil {
-		log.Fatal(err)
-	}
-
-	// Write file
-	err := f1.WriteFile(task1)
+	err := f1.CreateFile()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Read file
-	data, err := f1.ReadFile()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// jsonFile, err := f1.ReadFile()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println("Atual: ", jsonFile)
 
-	fmt.Println(string(data))
+	// criando uma task
+	// task1 := task.NewTask("clean the house")
+	// task2 := task.NewTask("study")
+
+	// // jsonFile = append(jsonFile, *task1, *task2)
+
+	// // fmt.Println(len(jsonFile))
+
+	// err = f1.WriteFile(*task1)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 }

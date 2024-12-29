@@ -26,61 +26,80 @@ func CheckFileExists(name string) bool {
 }
 
 // ParseToJson
-func ParseJson(t *task.Task) (string, error) {
+func ParseJson(t task.Task) ([]byte, error) {
 	j, err := json.Marshal(t)
 	if err != nil {
 		log.Fatal(err)
-		return "", err
+		return []byte{}, err
 	}
 
-	return string(j), nil
+	return j, nil
 }
 
 // CreateFile
 func (f *File) CreateFile() error {
 
-	ok := CheckFileExists(f.Name)
-	if ok {
+	if ok := CheckFileExists(f.Name); ok {
 		log.Println("info: arquivo existe")
 		return nil
 	}
 
-	var err error
-	_, err = os.Create(f.Name)
+	file, err := os.Create(f.Name)
 	if err != nil {
 		return fmt.Errorf("error: can`t create file `%s`.\n %v", f.Name, err)
 	}
+	defer file.Close()
 
-	log.Println("File create...", f.Name)
+	log.Println("File created...", f.Name)
 
 	return nil
 }
 
-func (f *File) WriteFile(t *task.Task) error {
-	file, err := os.OpenFile(f.Name, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func (f *File) ReadFile() ([]task.Task, error) {
+	file, err := os.Open(f.Name)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// Decode json
+	var sliceTask []task.Task
+	err = json.NewDecoder(file).Decode(&sliceTask)
+	if err != nil {
+		return nil, err
+	}
+
+	return sliceTask, nil
+
+}
+
+func (f *File) WriteFile(task task.Task) error {
+	file, err := os.Open(f.Name)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	textJson, err := ParseJson(t)
+	slTasks, err := f.ReadFile()
 	if err != nil {
 		return err
 	}
 
-	_, err = file.WriteString(textJson)
+	slTasks = append(slTasks, task)
+
+	fmt.Println(slTasks)
+
+	// Encode struct Json
+	b, err := json.Marshal(slTasks)
 	if err != nil {
 		return err
 	}
 
-	log.Println("File writing file...", f.Name)
+	// Write a file
+	_, err = file.WriteString(string(b))
+	if err != nil {
+		return err
+	}
+
 	return nil
-}
-
-func (f *File) ReadFile() ([]byte, error) {
-	data, err := os.ReadFile(f.Name)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
 }
