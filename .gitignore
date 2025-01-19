@@ -23,3 +23,9 @@ go.work.sum
 
 # env file
 .env
+
+# Build folder
+bin
+
+# File storage task
+task.json

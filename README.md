@@ -92,8 +92,14 @@ Here are a few steps to help you get started with the Task Tracker CLI project:
 - Clean up your code and add comments where necessary.
 - Write a good readme file on how to use your Task Tracker CLI.
 
+## Go project layout
+
 ---
 
 ## References
 
 - [Roadmap Go projects](https://roadmap.sh/projects/task-tracker)
+- [Go standards project layout ](https://github.com/golang-standards/project-layout/blob/master/README_ptBR.md)
+- [Go blueprints](https://go-blueprint.dev/)
+- [Go blueprints docs](https://docs.go-blueprint.dev/)
+- [Repository Go blueprints](https://github.com/Melkeydev/go-blueprint)
