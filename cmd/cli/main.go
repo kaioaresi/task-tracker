@@ -1,5 +1,13 @@
 package main
 
+import (
+	"log"
+	"task-tracker/internal/storage"
+)
+
 func main() {
-	println("Task tracker")
+	_, err := storage.Newfile()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
