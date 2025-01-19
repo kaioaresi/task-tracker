@@ -1,13 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"task-tracker/internal/storage"
 )
 
 func main() {
-	_, err := storage.Newfile()
+	file, err := storage.Newfile()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
+
+	// Read file
+	tasks, err := file.Read()
+	if err != nil {
+		log.Println(err)
+	}
+
+	for _, task := range tasks {
+		fmt.Println(task.Description)
+	}
+
 }
