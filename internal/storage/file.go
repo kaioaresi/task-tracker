@@ -16,14 +16,14 @@ type FileStorage struct {
 // Check if file existe
 func CheckFileExist(fileName string) (bool, error) {
 	if _, err := os.Stat(fileName); err == nil {
-        return true, fmt.Errorf("file exist '%s'", fileName)
+		return true, fmt.Errorf("file exist '%s'", fileName)
 	}
 
 	return false, nil
 }
 
-// Create a file
-func Newfile() (*FileStorage, error){
+// Newfile - create a file
+func Newfile() (*FileStorage, error) {
 
 	fileName := "task.json"
 
@@ -37,23 +37,44 @@ func Newfile() (*FileStorage, error){
 		return nil, fmt.Errorf("error to create file %e", err)
 	}
 	defer file.Close()
-	
+
 	log.Println("Create file...")
 
 	return &FileStorage{
-		Name:      fileName,
+		Name: fileName,
 	}, nil
 }
 
-// Read file
-func (f *FileStorage) Read () (task.Task,error) {
+// Save - save task on file
+func (f *FileStorage) Save(t task.Task) error {
+	log.Print("Start saving task.....")
+
+	file, err := os.OpenFile("task.json", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		return fmt.Errorf("error to open file!\n%v", err)
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(t)
+	if err != nil {
+		return fmt.Errorf("error to encode task!\n%v", err)
+	}
+
+	log.Print("task saved!")
+
+	return nil
+}
+
+// Read - read file
+func (f *FileStorage) Read() ([]task.Task, error) {
 	log.Println("Start read file.....")
 
 	file, err := os.Open("task.json")
 	if err != nil {
 		return nil, fmt.Errorf("erro to open file %f", err)
 	}
-	log.Println("Successfully Opened users.json")
+	log.Println("Successfully Opened task.json")
 	defer file.Close()
 
 	// Parsing with Struct
@@ -62,7 +83,7 @@ func (f *FileStorage) Read () (task.Task,error) {
 		return nil, fmt.Errorf("erro to read file %f", err)
 	}
 
-	var tasks task.Task
+	var tasks []task.Task
 
 	err = json.Unmarshal(bFile, &tasks)
 	if err != nil {
@@ -70,6 +91,7 @@ func (f *FileStorage) Read () (task.Task,error) {
 	}
 
 	log.Println("Finished read file.....")
-	
+
 	return tasks, nil
 }
+
