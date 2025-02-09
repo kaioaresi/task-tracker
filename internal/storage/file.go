@@ -3,7 +3,6 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"task-tracker/internal/task"
@@ -67,7 +66,7 @@ func (f *FileStorage) Save(t task.Task) error {
 }
 
 // Read - read file
-func (f *FileStorage) Read() ([]task.Task, error) {
+func (f *FileStorage) Read() (*task.Task, error) {
 	log.Println("Start read file.....")
 
 	file, err := os.Open("task.json")
@@ -77,21 +76,16 @@ func (f *FileStorage) Read() ([]task.Task, error) {
 	log.Println("Successfully Opened task.json")
 	defer file.Close()
 
-	// Parsing with Struct
-	bFile, err := io.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("erro to read file %f", err)
-	}
+	decoder := json.NewDecoder(file)
+	tasks := task.Task{}
 
-	var tasks []task.Task
-
-	err = json.Unmarshal(bFile, &tasks)
+	err = decoder.Decode(&tasks)
 	if err != nil {
-		return nil, fmt.Errorf("error to parsing file %e", err)
+		return nil, fmt.Errorf("error to decode file\n%v", err)
 	}
 
 	log.Println("Finished read file.....")
 
-	return tasks, nil
+	return &tasks, nil
 }
 
