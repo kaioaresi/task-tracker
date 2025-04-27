@@ -11,8 +11,8 @@ type Task struct {
 	Description string     `json:"description"`
 	Status      string     `json:"status"`
 	CreateAt    *time.Time `json:"createAt"`
-	deleteAt    *time.Time `json:"deleteAt"`
-	updateAt    *time.Time `json:"updateAt"`
+	DeleteAt    *time.Time `json:"deleteAt"`
+	UpdateAt    *time.Time `json:"updateAt"`
 }
 
 func NewTask(description string) *Task {
@@ -22,7 +22,19 @@ func NewTask(description string) *Task {
 		Description: description,
 		Status:      "TODO",
 		CreateAt:    &now,
-		deleteAt:    nil,
-		updateAt:    nil,
+		DeleteAt:    nil,
+		UpdateAt:    nil,
 	}
+}
+
+func (t *Task) UpdateStatus() {
+	now := time.Now()
+	t.Status = "in-progress"
+	t.UpdateAt = &now
+}
+
+func (t *Task) Done() {
+	now := time.Now()
+	t.Status = "Done"
+	t.DeleteAt = &now
 }

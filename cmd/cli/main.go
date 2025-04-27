@@ -17,4 +17,13 @@ func main() {
 	t1 := task.NewTask(description)
 
 	fmt.Println(t1)
+
+	t1.UpdateStatus()
+
+	fmt.Println(t1)
+
+	t1.Done()
+
+	fmt.Println(t1)
+
 }
