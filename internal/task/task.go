@@ -1,12 +1,28 @@
 package task
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Task struct {
-	ID          int       `json:"id"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"`
-	CreateAt    time.Time    `json:"createAt"`
-	DeleteAt    time.Time `json:"deleteAt"`
-	UpdateAt    time.Time `json:"updateAt"`
+	ID          uuid.UUID  `json:"id"`
+	Description string     `json:"description"`
+	Status      string     `json:"status"`
+	CreateAt    *time.Time `json:"createAt"`
+	deleteAt    *time.Time `json:"deleteAt"`
+	updateAt    *time.Time `json:"updateAt"`
+}
+
+func NewTask(description string) *Task {
+	now := time.Now()
+	return &Task{
+		ID:          uuid.New(),
+		Description: description,
+		Status:      "TODO",
+		CreateAt:    &now,
+		deleteAt:    nil,
+		updateAt:    nil,
+	}
 }

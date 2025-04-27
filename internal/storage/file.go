@@ -88,4 +88,3 @@ func (f *FileStorage) Read() (*task.Task, error) {
 
 	return &tasks, nil
 }
-
