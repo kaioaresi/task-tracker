@@ -41,12 +41,10 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
-
 		fmt.Println(status)
 
 	default:
 		fmt.Printf("Invalide option, %q\n", argTask)
 		utils.Help()
 	}
-
 }
