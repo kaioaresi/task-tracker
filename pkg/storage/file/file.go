@@ -1,6 +1,7 @@
 package file
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
@@ -19,7 +20,7 @@ func ProvideFile(fileName string) (*os.File, error) {
 
 	file, err := CreateFile(fileName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error to save task on file, %v\n", err)
 	}
 
 	return file, nil

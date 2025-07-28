@@ -22,11 +22,19 @@ func main() {
 		utils.Help()
 	case "add":
 		if len(os.Args) < 3 {
-
+			fmt.Println("Error: you need to info description")
+			utils.Help()
+			return
 		}
+
+		if len(os.Args[2]) == 0 {
+			fmt.Println("Empty task description")
+			utils.Help()
+			return
+		}
+
 		taskDescription := os.Args[2]
 
-		fmt.Printf("add task with description %q\n", taskDescription)
 		task := task.NewTask(taskDescription)
 
 		status, err := task.Save()
