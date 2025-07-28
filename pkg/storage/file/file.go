@@ -28,7 +28,6 @@ func ProvideFile(fileName string) (*os.File, error) {
 	}
 
 	file, err := CreateFile(fileName)
-	log.Println("Create file...")
 	if err != nil {
 		return nil, utils.ErrorF("error to save task on file", err)
 	}

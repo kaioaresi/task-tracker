@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"task-tracker/pkg/storage/file"
 	"task-tracker/pkg/task"
 	"task-tracker/pkg/utils"
 )
@@ -42,6 +44,27 @@ func main() {
 			log.Fatalln(err)
 		}
 		fmt.Println(status)
+	case "list":
+		bData, err := file.ReadFile("tasks.json")
+		if err != nil {
+			log.Fatalf("Error to read task file", err)
+			return
+		}
+
+		if len(bData) == 0 {
+			return
+		}
+
+		var tasks []task.Task
+		err = json.Unmarshal(bData, &tasks)
+		if err != nil {
+			log.Fatalf("Error to Unmarshal json file", err)
+		}
+
+		for _, task := range tasks {
+			fmt.Println("ID", task.ID)
+			fmt.Println("Description", task.Description)
+		}
 
 	default:
 		fmt.Printf("Invalide option, %q\n", argTask)

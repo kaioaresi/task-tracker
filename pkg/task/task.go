@@ -10,7 +10,7 @@ import (
 )
 
 type Task struct {
-	ID          uint      `json:"id"`
+	ID          int       `json:"id"`
 	Description string    `json:"Description"`
 	Status      string    `json:"status"`
 	CreatedAt   time.Time `json:"createdat"`
@@ -22,7 +22,6 @@ const fileName = "tasks.json"
 func NewTask(description string) *Task {
 
 	return &Task{
-		ID:          0,
 		Description: description,
 		Status:      "TODO",
 		CreatedAt:   time.Now(),
@@ -42,21 +41,29 @@ func (t *Task) Save() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("Slice vazio", sliceTasks)
+
+	var maxID int
+
+	for _, task := range sliceTasks {
+		if task.ID > maxID {
+			maxID = task.ID
+		}
+	}
+
+	t.ID = maxID + 1
 	sliceTasks = append(sliceTasks, *t)
 
-	jsonData, err := json.Marshal(sliceTasks)
+	jsonData, err := json.MarshalIndent(sliceTasks, "", " ")
 	if err != nil {
 		return "", utils.ErrorF("Cannot marshal data", err)
 	}
 
-	fmt.Println(string(jsonData))
 	_, err = file.Write(jsonData)
 	if err != nil {
 		return "", utils.ErrorF("Could not write a file", err)
 	}
 
-	return "Task saved!", nil
+	return fmt.Sprintf("Task added successfully (ID: %d)", t.ID), nil
 }
 
 func (t Task) ReadTasks() ([]Task, error) {
@@ -75,7 +82,7 @@ func (t Task) ReadTasks() ([]Task, error) {
 	var tasks []Task
 	err = json.Unmarshal(bData, &tasks)
 	if err != nil {
-		return nil, utils.ErrorF("Error to unmarshal json file", err)
+		return nil, utils.ErrorF("Error to Unmarshal json file", err)
 	}
 
 	return tasks, nil
