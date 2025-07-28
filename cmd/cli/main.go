@@ -39,7 +39,7 @@ func main() {
 
 		task := task.NewTask(taskDescription)
 
-		status, err := task.Save()
+		status, err := task.AddTask()
 		if err != nil {
 			log.Fatalln(err)
 		}

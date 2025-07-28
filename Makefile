@@ -1,8 +1,8 @@
 run:
-	go run main.go
+	go run cmd/cli/main.go
 
 build:
-	go build -o ./bin/task-tracker
+	go build -o bin/task-tracker cmd/cli/main.go
 
 test:
 	go test ./... -v
