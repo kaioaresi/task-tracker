@@ -27,7 +27,6 @@ func NewTask(description string) *Task {
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Time{},
 	}
-
 }
 
 func (t *Task) AddTask() (string, error) {
@@ -98,4 +97,31 @@ func SaveAll(tasks []Task) error {
 	}
 
 	return nil
+}
+
+func (t *Task) List() ([]Task, error) {
+	return t.ReadTasks()
+}
+
+func DisplayTasksTable(tasks []Task) {
+	const idWidth = 5
+	const statusWidth = 10
+	const maxDescriptionWidth = 60
+
+	fmt.Printf("%-*s %-*s %s\n", idWidth, "ID", statusWidth, "STATUS", "DESCRIÇÃO")
+	fmt.Println("--------------------------------------")
+
+	for _, t := range tasks {
+		displayDescription := t.Description
+		if len(displayDescription) > maxDescriptionWidth {
+			displayDescription = displayDescription[:maxDescriptionWidth-3] + "..."
+		}
+
+		fmt.Printf("%-*d %-*s %s\n",
+			idWidth, t.ID,
+			statusWidth, t.Status,
+			displayDescription)
+	}
+
+	fmt.Println("--------------------------------------")
 }
