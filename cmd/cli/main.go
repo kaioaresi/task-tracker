@@ -38,11 +38,9 @@ func main() {
 
 		task := task.NewTask(taskDescription)
 
-		status, err := task.Add()
-		if err != nil {
+		if err := task.Add(); err != nil {
 			log.Fatalln(err)
 		}
-		fmt.Println(status)
 	case "list":
 
 		t := task.Task{}
@@ -118,7 +116,7 @@ func main() {
 		}
 		taskID, _ := strconv.Atoi(os.Args[2])
 		t := task.Task{}
-		if err := t.MarkInProgress(taskID); err != nil {
+		if err := t.ChangeStatus(taskID, task.INPROGRESS); err != nil {
 			log.Fatal(err)
 		}
 	case "mark-done":
@@ -134,7 +132,7 @@ func main() {
 		}
 		taskID, _ := strconv.Atoi(os.Args[2])
 		t := task.Task{}
-		if err := t.MarkDone(taskID); err != nil {
+		if err := t.ChangeStatus(taskID, task.DONE); err != nil {
 			log.Fatal(err)
 		}
 

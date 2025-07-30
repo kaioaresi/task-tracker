@@ -3,6 +3,7 @@ package task
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"task-tracker/pkg/utils"
@@ -17,22 +18,27 @@ type Task struct {
 	UpdatedAt   time.Time `json:"updatedat"`
 }
 
-const fileName = "tasks.json"
+const (
+	fileName   = "tasks.json"
+	INPROGRESS = "IN-PROGRESS"
+	DONE       = "DONE"
+	TODO       = "TODO"
+)
 
 func NewTask(description string) *Task {
 
 	return &Task{
 		Description: description,
-		Status:      "TODO",
+		Status:      TODO,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Time{},
 	}
 }
 
-func (t *Task) Add() (string, error) {
+func (t *Task) Add() error {
 	sliceTasks, err := t.Read()
 	if err != nil {
-		return "", err
+		return utils.Error(err)
 	}
 
 	t.ID = getMaxID(sliceTasks) + 1
@@ -40,9 +46,12 @@ func (t *Task) Add() (string, error) {
 
 	err = t.Save(sliceTasks)
 	if err != nil {
-		return "", err
+		return utils.Error(err)
 	}
-	return fmt.Sprintf("Task added successfully (ID: %d)", t.ID), nil
+
+	log.Println("Task added successfully (ID:)", t.ID)
+
+	return nil
 }
 
 func (t *Task) Read() ([]Task, error) {
@@ -78,7 +87,7 @@ func (t *Task) Update(taskID int, description string) error {
 
 	for i := range tasks {
 		if tasks[i].ID == taskID {
-			tasks[i].Description = *&t.Description
+			tasks[i].Description = t.Description
 			break
 		}
 	}
@@ -113,8 +122,8 @@ func (t *Task) Delete(taskID int) error {
 	return nil
 }
 
-func (t *Task) MarkInProgress(taskID int) error {
-	t.Status = "IN-PROGRESS"
+func (t *Task) ChangeStatus(taskID int, status string) error {
+	t.Status = status
 	t.UpdatedAt = time.Now()
 
 	tasks, err := t.Read()
@@ -125,33 +134,7 @@ func (t *Task) MarkInProgress(taskID int) error {
 	indexNotFount := -1
 	for i := range tasks {
 		if tasks[i].ID == taskID {
-			tasks[i].Status = *&t.Status
-			indexNotFount = i
-			break
-		}
-	}
-
-	if indexNotFount == -1 {
-		return fmt.Errorf("Task %v not found", taskID)
-	}
-
-	return t.Save(tasks)
-
-}
-
-func (t *Task) MarkDone(taskID int) error {
-	t.Status = "DONE"
-	t.UpdatedAt = time.Now()
-
-	tasks, err := t.Read()
-	if err != nil {
-		return err
-	}
-
-	indexNotFount := -1
-	for i := range tasks {
-		if tasks[i].ID == taskID {
-			tasks[i].Status = *&t.Status
+			tasks[i].Status = t.Status
 			indexNotFount = i
 			break
 		}
@@ -179,19 +162,23 @@ func getMaxID(sliceTasks []Task) int {
 func (t *Task) Save(tasks []Task) error {
 	jsonData, err := json.MarshalIndent(tasks, "", " ")
 	if err != nil {
-		return utils.ErrorF("Cannot marshal data", err)
+		return utils.ErrorF("Error to marshal data", err)
 	}
 
 	err = os.WriteFile(fileName, jsonData, 0644)
 	if err != nil {
-		return utils.ErrorF("Could not write a file", err)
+		return utils.ErrorF("Error to write a file", err)
 	}
 
 	return nil
 }
 
 func (t Task) List() ([]Task, error) {
-	return t.Read()
+	tasks, err := t.Read()
+	if err != nil {
+		return nil, utils.Error(err)
+	}
+	return tasks, nil
 }
 
 func (t Task) ListTaskByStatus(status string) ([]Task, error) {

@@ -23,7 +23,11 @@ func Help() {
 
 func ErrorF(msg string, err error) error {
 	if err != nil {
-		return fmt.Errorf(msg, err)
+		return fmt.Errorf("%s %w", msg, err)
 	}
 	return nil
+}
+
+func Error(err error) error {
+	return err
 }
