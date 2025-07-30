@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"task-tracker/pkg/utils"
 	"time"
 )
@@ -113,7 +114,7 @@ func (t *Task) Delete(taskID int) error {
 }
 
 func (t *Task) MarkInProgress(taskID int) error {
-	t.Status = "in-progress"
+	t.Status = "IN-PROGRESS"
 	t.UpdatedAt = time.Now()
 
 	tasks, err := t.Read()
@@ -176,13 +177,6 @@ func getMaxID(sliceTasks []Task) int {
 }
 
 func (t *Task) Save(tasks []Task) error {
-	// file, err := file.ProvideFile(fileName)
-	// if err != nil {
-	// 	return utils.ErrorF("Error to provide file", err)
-	// }
-
-	// defer file.Close()
-
 	jsonData, err := json.MarshalIndent(tasks, "", " ")
 	if err != nil {
 		return utils.ErrorF("Cannot marshal data", err)
@@ -193,16 +187,27 @@ func (t *Task) Save(tasks []Task) error {
 		return utils.ErrorF("Could not write a file", err)
 	}
 
-	// _, err = file.Write(jsonData)
-	// if err != nil {
-	// 	return utils.ErrorF("Could not write a file", err)
-	// }
-
 	return nil
 }
 
-func (t *Task) List() ([]Task, error) {
+func (t Task) List() ([]Task, error) {
 	return t.Read()
+}
+
+func (t Task) ListTaskByStatus(status string) ([]Task, error) {
+	tasks, err := t.Read()
+	if err != nil {
+		return nil, err
+	}
+
+	sliceTasks := []Task{}
+	for _, task := range tasks {
+		if task.Status == strings.ToUpper(status) {
+			sliceTasks = append(sliceTasks, task)
+		}
+	}
+
+	return sliceTasks, nil
 }
 
 func DisplayTasksTable(tasks []Task) {

@@ -47,12 +47,27 @@ func main() {
 
 		t := task.Task{}
 
-		tasks, err := t.List()
+		if len(os.Args) == 2 {
+
+			tasks, err := t.List()
+			if err != nil {
+				log.Fatal(err)
+			}
+			task.DisplayTasksTable(tasks)
+			return
+		}
+
+		listOptions := os.Args[2]
+
+		fmt.Println("List option:", listOptions)
+		fmt.Println("Exibindo list tasks todo")
+		tasksTodo, err := t.ListTaskByStatus(listOptions)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		task.DisplayTasksTable(tasks)
+		task.DisplayTasksTable(tasksTodo)
+
 	case "update":
 		if len(os.Args) < 3 {
 			fmt.Println("Error: you need to info description")
