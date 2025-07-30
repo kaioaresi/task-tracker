@@ -202,6 +202,11 @@ func DisplayTasksTable(tasks []Task) {
 	const statusWidth = 10
 	const maxDescriptionWidth = 60
 
+	if len(tasks) == 0 {
+		log.Println("No tasks found. Add a new task with 'cli add <task description>'.")
+		return
+	}
+
 	fmt.Printf("%-*s %-*s %s\n", idWidth, "ID", statusWidth, "STATUS", "DESCRIÇÃO")
 	fmt.Println("--------------------------------------")
 

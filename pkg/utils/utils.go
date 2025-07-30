@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 )
 
 func Help() {
@@ -30,4 +31,16 @@ func ErrorF(msg string, err error) error {
 
 func Error(err error) error {
 	return err
+}
+
+func CheckInput(input []string) error {
+	if len(input) < 3 {
+		Help()
+		return fmt.Errorf("Insufficient parameters")
+	}
+	if len(os.Args[2]) == 0 {
+		Help()
+		return fmt.Errorf("Empty task description")
+	}
+	return nil
 }
