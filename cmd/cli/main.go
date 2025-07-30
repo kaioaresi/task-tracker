@@ -19,7 +19,7 @@ func main() {
 	argTask := os.Args[1]
 
 	switch argTask {
-	case "help":
+	case "help", "-h", "--help":
 		utils.Help()
 	case "add":
 		if len(os.Args) < 3 {
@@ -88,6 +88,38 @@ func main() {
 		taskID, _ := strconv.Atoi(os.Args[2])
 		t := task.Task{}
 		if err := t.Delete(taskID); err != nil {
+			log.Fatal(err)
+		}
+	case "mark-in-progress":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: you need to info task 1")
+			utils.Help()
+			return
+		}
+
+		if len(os.Args[2]) == 0 {
+			utils.Help()
+			return
+		}
+		taskID, _ := strconv.Atoi(os.Args[2])
+		t := task.Task{}
+		if err := t.MarkInProgress(taskID); err != nil {
+			log.Fatal(err)
+		}
+	case "mark-done":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: you need to info task 1")
+			utils.Help()
+			return
+		}
+
+		if len(os.Args[2]) == 0 {
+			utils.Help()
+			return
+		}
+		taskID, _ := strconv.Atoi(os.Args[2])
+		t := task.Task{}
+		if err := t.MarkDone(taskID); err != nil {
 			log.Fatal(err)
 		}
 

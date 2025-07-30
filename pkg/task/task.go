@@ -112,6 +112,58 @@ func (t *Task) Delete(taskID int) error {
 	return nil
 }
 
+func (t *Task) MarkInProgress(taskID int) error {
+	t.Status = "in-progress"
+	t.UpdatedAt = time.Now()
+
+	tasks, err := t.Read()
+	if err != nil {
+		return err
+	}
+
+	indexNotFount := -1
+	for i := range tasks {
+		if tasks[i].ID == taskID {
+			tasks[i].Status = *&t.Status
+			indexNotFount = i
+			break
+		}
+	}
+
+	if indexNotFount == -1 {
+		return fmt.Errorf("Task %v not found", taskID)
+	}
+
+	return t.Save(tasks)
+
+}
+
+func (t *Task) MarkDone(taskID int) error {
+	t.Status = "DONE"
+	t.UpdatedAt = time.Now()
+
+	tasks, err := t.Read()
+	if err != nil {
+		return err
+	}
+
+	indexNotFount := -1
+	for i := range tasks {
+		if tasks[i].ID == taskID {
+			tasks[i].Status = *&t.Status
+			indexNotFount = i
+			break
+		}
+	}
+
+	if indexNotFount == -1 {
+		return fmt.Errorf("Task %v not found", taskID)
+	}
+
+	return t.Save(tasks)
+
+}
+
 func getMaxID(sliceTasks []Task) int {
 	var maxID int
 	for _, task := range sliceTasks {
