@@ -10,7 +10,9 @@ func Help() {
 	fmt.Println("\tusage - cli add 'task description'")
 	fmt.Println("list: list all tasks")
 	fmt.Println("update: update a task description")
-	fmt.Println("\tusage - cli update taskID 'new task description'")
+	fmt.Println("\tusage - cli update <taskID> 'new task description'")
+	fmt.Println("delete: delete a task")
+	fmt.Println("\tusage - cli delete <taskID>")
 
 }
 

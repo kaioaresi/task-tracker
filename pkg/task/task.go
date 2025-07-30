@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"task-tracker/pkg/storage/file"
 	"task-tracker/pkg/utils"
 	"time"
 )
@@ -29,8 +28,8 @@ func NewTask(description string) *Task {
 	}
 }
 
-func (t *Task) AddTask() (string, error) {
-	sliceTasks, err := t.ReadTasks()
+func (t *Task) Add() (string, error) {
+	sliceTasks, err := t.Read()
 	if err != nil {
 		return "", err
 	}
@@ -45,7 +44,7 @@ func (t *Task) AddTask() (string, error) {
 	return fmt.Sprintf("Task added successfully (ID: %d)", t.ID), nil
 }
 
-func (t *Task) ReadTasks() ([]Task, error) {
+func (t *Task) Read() ([]Task, error) {
 	bData, err := os.ReadFile(fileName)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -71,7 +70,7 @@ func (t *Task) Update(taskID int, description string) error {
 	t.Description = description
 	t.UpdatedAt = time.Now()
 
-	tasks, err := t.ReadTasks()
+	tasks, err := t.Read()
 	if err != nil {
 		return err
 	}
@@ -86,6 +85,33 @@ func (t *Task) Update(taskID int, description string) error {
 	return t.Save(tasks)
 }
 
+func (t *Task) Delete(taskID int) error {
+	tasks, err := t.Read()
+	if err != nil {
+		return err
+	}
+
+	indexDelete := -1
+	for i, task := range tasks {
+		if task.ID == taskID {
+			indexDelete = i
+			break
+		}
+	}
+
+	if indexDelete == -1 {
+		return fmt.Errorf("Task %v not found", taskID)
+	}
+
+	tasks = append(tasks[:indexDelete], tasks[indexDelete+1:]...)
+	err = t.Save(tasks)
+	if err != nil {
+		return utils.ErrorF("Error to delete task", err)
+	}
+
+	return nil
+}
+
 func getMaxID(sliceTasks []Task) int {
 	var maxID int
 	for _, task := range sliceTasks {
@@ -98,28 +124,33 @@ func getMaxID(sliceTasks []Task) int {
 }
 
 func (t *Task) Save(tasks []Task) error {
-	file, err := file.ProvideFile(fileName)
-	if err != nil {
-		return utils.ErrorF("Error to provide file", err)
-	}
+	// file, err := file.ProvideFile(fileName)
+	// if err != nil {
+	// 	return utils.ErrorF("Error to provide file", err)
+	// }
 
-	defer file.Close()
+	// defer file.Close()
 
 	jsonData, err := json.MarshalIndent(tasks, "", " ")
 	if err != nil {
 		return utils.ErrorF("Cannot marshal data", err)
 	}
 
-	_, err = file.Write(jsonData)
+	err = os.WriteFile(fileName, jsonData, 0644)
 	if err != nil {
 		return utils.ErrorF("Could not write a file", err)
 	}
+
+	// _, err = file.Write(jsonData)
+	// if err != nil {
+	// 	return utils.ErrorF("Could not write a file", err)
+	// }
 
 	return nil
 }
 
 func (t *Task) List() ([]Task, error) {
-	return t.ReadTasks()
+	return t.Read()
 }
 
 func DisplayTasksTable(tasks []Task) {

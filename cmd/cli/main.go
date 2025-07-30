@@ -38,7 +38,7 @@ func main() {
 
 		task := task.NewTask(taskDescription)
 
-		status, err := task.AddTask()
+		status, err := task.Add()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -71,6 +71,23 @@ func main() {
 
 		t := task.Task{}
 		if err := t.Update(taskID, taskDescription); err != nil {
+			log.Fatal(err)
+		}
+	case "delete":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: you need to info task 1")
+			utils.Help()
+			return
+		}
+
+		if len(os.Args[2]) == 0 {
+			utils.Help()
+			return
+		}
+
+		taskID, _ := strconv.Atoi(os.Args[2])
+		t := task.Task{}
+		if err := t.Delete(taskID); err != nil {
 			log.Fatal(err)
 		}
 
