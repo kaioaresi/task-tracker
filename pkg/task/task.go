@@ -11,7 +11,7 @@ import (
 
 type Task struct {
 	ID          int       `json:"id"`
-	Description string    `json:"Description"`
+	Description string    `json:"description"`
 	Status      string    `json:"status"`
 	CreatedAt   time.Time `json:"createdat"`
 	UpdatedAt   time.Time `json:"updatedat"`
@@ -38,7 +38,7 @@ func (t *Task) AddTask() (string, error) {
 	t.ID = getMaxID(sliceTasks) + 1
 	sliceTasks = append(sliceTasks, *t)
 
-	err = SaveAll(sliceTasks)
+	err = t.Save(sliceTasks)
 	if err != nil {
 		return "", err
 	}
@@ -67,6 +67,25 @@ func (t *Task) ReadTasks() ([]Task, error) {
 	return tasks, nil
 }
 
+func (t *Task) Update(taskID int, description string) error {
+	t.Description = description
+	t.UpdatedAt = time.Now()
+
+	tasks, err := t.ReadTasks()
+	if err != nil {
+		return err
+	}
+
+	for i := range tasks {
+		if tasks[i].ID == taskID {
+			tasks[i].Description = *&t.Description
+			break
+		}
+	}
+
+	return t.Save(tasks)
+}
+
 func getMaxID(sliceTasks []Task) int {
 	var maxID int
 	for _, task := range sliceTasks {
@@ -78,7 +97,7 @@ func getMaxID(sliceTasks []Task) int {
 	return maxID
 }
 
-func SaveAll(tasks []Task) error {
+func (t *Task) Save(tasks []Task) error {
 	file, err := file.ProvideFile(fileName)
 	if err != nil {
 		return utils.ErrorF("Error to provide file", err)

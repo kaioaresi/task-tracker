@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"task-tracker/pkg/task"
 	"task-tracker/pkg/utils"
 )
@@ -52,6 +53,26 @@ func main() {
 		}
 
 		task.DisplayTasksTable(tasks)
+	case "update":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: you need to info description")
+			utils.Help()
+			return
+		}
+
+		if len(os.Args[2]) == 0 {
+			fmt.Println("Task list is empty")
+			utils.Help()
+			return
+		}
+
+		taskID, _ := strconv.Atoi(os.Args[2])
+		taskDescription := os.Args[3]
+
+		t := task.Task{}
+		if err := t.Update(taskID, taskDescription); err != nil {
+			log.Fatal(err)
+		}
 
 	default:
 		fmt.Printf("Invalide option, %q\n", argTask)
