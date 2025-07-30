@@ -9,6 +9,12 @@ import (
 	"time"
 )
 
+const (
+	TODO       = "TODO"
+	INPROGRESS = "IN-PROGRESS"
+	DONE       = "DONE"
+)
+
 type Task struct {
 	ID          int       `json:"id"`
 	Description string    `json:"description"`
@@ -23,7 +29,7 @@ func NewTask(description string) *Task {
 
 	return &Task{
 		Description: description,
-		Status:      "TODO",
+		Status:      TODO,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Time{},
 	}
@@ -113,56 +119,27 @@ func (t *Task) Delete(taskID int) error {
 	return nil
 }
 
-func (t *Task) MarkInProgress(taskID int) error {
-	t.Status = "IN-PROGRESS"
-	t.UpdatedAt = time.Now()
-
+func (t *Task) UpdateStatus(taskID int, status string) error {
 	tasks, err := t.Read()
 	if err != nil {
 		return err
 	}
 
-	indexNotFount := -1
+	taskFound := false
 	for i := range tasks {
 		if tasks[i].ID == taskID {
-			tasks[i].Status = *&t.Status
-			indexNotFount = i
+			tasks[i].Status = status
+			tasks[i].UpdatedAt = time.Now()
+			taskFound = true
 			break
 		}
 	}
 
-	if indexNotFount == -1 {
-		return fmt.Errorf("Task %v not found", taskID)
+	if !taskFound {
+		return fmt.Errorf("task %v not found", taskID)
 	}
 
 	return t.Save(tasks)
-
-}
-
-func (t *Task) MarkDone(taskID int) error {
-	t.Status = "DONE"
-	t.UpdatedAt = time.Now()
-
-	tasks, err := t.Read()
-	if err != nil {
-		return err
-	}
-
-	indexNotFount := -1
-	for i := range tasks {
-		if tasks[i].ID == taskID {
-			tasks[i].Status = *&t.Status
-			indexNotFount = i
-			break
-		}
-	}
-
-	if indexNotFount == -1 {
-		return fmt.Errorf("Task %v not found", taskID)
-	}
-
-	return t.Save(tasks)
-
 }
 
 func getMaxID(sliceTasks []Task) int {
