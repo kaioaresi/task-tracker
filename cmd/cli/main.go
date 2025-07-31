@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -52,13 +51,13 @@ func main() {
 
 	case "update":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: you need to info description")
+			log.Println("Error: you need to info description")
 			utils.Help()
 			return
 		}
 
 		if len(os.Args[2]) == 0 || len(os.Args[3]) == 0 {
-			fmt.Println("Task list is empty")
+			log.Println("Task list is empty")
 			utils.Help()
 			return
 		}

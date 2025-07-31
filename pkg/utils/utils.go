@@ -1,9 +1,13 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
+
+var insufficientParameters = errors.New("insufficient parameters")
+var emptyDescription = errors.New("empty task description")
 
 func Help() {
 	fmt.Println("Options:")
@@ -24,7 +28,7 @@ func Help() {
 
 func ErrorF(msg string, err error) error {
 	if err != nil {
-		return fmt.Errorf("%s %w", msg, err)
+		return fmt.Errorf("Error: %s %w", msg, err)
 	}
 	return nil
 }
@@ -36,11 +40,11 @@ func Error(err error) error {
 func CheckInput(input []string) error {
 	if len(input) < 3 {
 		Help()
-		return fmt.Errorf("Insufficient parameters")
+		return ErrorF("bad input", insufficientParameters)
 	}
 	if len(os.Args[2]) == 0 {
 		Help()
-		return fmt.Errorf("Empty task description")
+		return ErrorF("bad input", emptyDescription)
 	}
 	return nil
 }
