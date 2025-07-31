@@ -58,3 +58,14 @@ func InputToInt(input string) (int, error) {
 
 	return number, nil
 }
+
+func GetTaskID(args []string) (int, error) {
+	if err := CheckInput(args); err != nil {
+		return 0, err
+	}
+	taskID, err := InputToInt(args[2])
+	if err != nil {
+		return 0, err
+	}
+	return taskID, nil
+}

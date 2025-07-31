@@ -2,10 +2,12 @@ package task
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"strings"
+	"task-tracker/pkg/storage"
 	"task-tracker/pkg/utils"
 	"time"
 )
@@ -19,7 +21,7 @@ type Task struct {
 }
 
 const (
-	fileName   = "tasks.json"
+	fileName   = "/tmp/tasks.json"
 	INPROGRESS = "IN-PROGRESS"
 	DONE       = "DONE"
 	TODO       = "TODO"
@@ -37,7 +39,7 @@ func NewTask(description string) *Task {
 
 func (t *Task) Add() error {
 	sliceTasks, err := t.Read()
-	if err != nil {
+	if os.IsNotExist(err) {
 		return utils.ErrorF(fmt.Sprintf("failed to read existing tasks to add new task: %s", fileName), err)
 	}
 
@@ -55,7 +57,8 @@ func (t *Task) Add() error {
 }
 
 func (t *Task) Read() ([]Task, error) {
-	bData, err := os.ReadFile(fileName)
+
+	bData, err := storage.Read(fileName)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []Task{}, nil
@@ -76,24 +79,60 @@ func (t *Task) Read() ([]Task, error) {
 	return tasks, nil
 }
 
-func (t *Task) Update(taskID int, description string) error {
-	t.Description = description
-	t.UpdatedAt = time.Now()
-
-	tasks, err := t.Read()
+func (t *Task) Save(tasks []Task) error {
+	jsonData, err := json.MarshalIndent(tasks, "", " ")
 	if err != nil {
-		return utils.ErrorF(fmt.Sprintf("failed to read file '%s' on update %d task ", fileName, t.ID), err)
+		return utils.ErrorF(fmt.Sprintf("failed to marshal data to save in file '%s'", fileName), err)
 	}
 
-	for i := range tasks {
-		if tasks[i].ID == taskID {
-			tasks[i].Description = t.Description
+	err = storage.Write(fileName, jsonData)
+	if err != nil {
+		return utils.ErrorF(fmt.Sprintf("failed to save task ID (%d) in file %s", t.ID, fileName), err)
+	}
+	return nil
+}
+
+func (t Task) List() ([]Task, error) {
+	tasks, err := t.Read()
+	if errors.Is(err, errors.New("no such file or directory")) {
+		return nil, utils.ErrorF(fmt.Sprintf("failed to list tasks in file '%s'", fileName), err)
+	}
+	return tasks, nil
+}
+
+func (t *Task) Update(taskID int, description string) error {
+	return t.updateTask(taskID, func(tasks []Task, index int) ([]Task, error) {
+		tasks[index].Description = description
+		tasks[index].UpdatedAt = time.Now()
+		return tasks, nil
+	})
+}
+
+func (t *Task) updateTask(taskID int, modify func(tasks []Task, index int) ([]Task, error)) error {
+	tasks, err := t.Read()
+	if err != nil {
+		return utils.ErrorF(fmt.Sprintf("failed to read file '%s' on update task", fileName), err)
+	}
+
+	index := -1
+	for i, task := range tasks {
+		if task.ID == taskID {
+			index = i
 			break
 		}
 	}
 
-	if err := t.Save(tasks); err != nil {
-		return utils.ErrorF(fmt.Sprintf("failed to save update task %d in file '%s'", t.ID, fileName), err)
+	if index == -1 {
+		return utils.ErrorF(fmt.Sprintf("task %d not found on file '%s'", taskID, fileName), err)
+	}
+
+	modifiedTasks, err := modify(tasks, index)
+	if err != nil {
+		return utils.ErrorF(fmt.Sprintf("failed to modify task %d", taskID), err)
+	}
+
+	if err := t.Save(modifiedTasks); err != nil {
+		return utils.ErrorF(fmt.Sprintf("failed to save update task %d in file '%s'", taskID, fileName), err)
 	}
 
 	return nil
@@ -164,27 +203,6 @@ func getMaxID(sliceTasks []Task) int {
 	}
 
 	return maxID
-}
-
-func (t *Task) Save(tasks []Task) error {
-	jsonData, err := json.MarshalIndent(tasks, "", " ")
-	if err != nil {
-		return utils.ErrorF(fmt.Sprintf("failed to marshal data to save in file '%s'", fileName), err)
-	}
-
-	if err = os.WriteFile(fileName, jsonData, 0644); err != nil {
-		return utils.ErrorF(fmt.Sprintf("failed to write a file '%s' on save", fileName), err)
-	}
-
-	return nil
-}
-
-func (t Task) List() ([]Task, error) {
-	tasks, err := t.Read()
-	if err != nil {
-		return nil, utils.ErrorF(fmt.Sprintf("failed to list tasks in file '%s'", fileName), err)
-	}
-	return tasks, nil
 }
 
 func (t Task) ListTaskByStatus(status string) ([]Task, error) {

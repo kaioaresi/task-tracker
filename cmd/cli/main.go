@@ -70,11 +70,7 @@ func main() {
 			log.Fatalln(err)
 		}
 	case "delete":
-		if err := utils.CheckInput(os.Args); err != nil {
-			log.Fatalln(err)
-		}
-
-		taskID, err := utils.InputToInt(os.Args[2])
+		taskID, err := utils.GetTaskID(os.Args)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -82,10 +78,7 @@ func main() {
 			log.Fatalln(err)
 		}
 	case "mark-in-progress":
-		if err := utils.CheckInput(os.Args); err != nil {
-			log.Fatalln(err)
-		}
-		taskID, err := utils.InputToInt(os.Args[2])
+		taskID, err := utils.GetTaskID(os.Args)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -93,15 +86,10 @@ func main() {
 			log.Fatalln(err)
 		}
 	case "mark-done":
-		if err := utils.CheckInput(os.Args); err != nil {
-			log.Fatalln(err)
-		}
-
-		taskID, err := utils.InputToInt(os.Args[2])
+		taskID, err := utils.GetTaskID(os.Args)
 		if err != nil {
 			log.Fatalln(err)
 		}
-
 		if err := t.ChangeStatus(taskID, task.DONE); err != nil {
 			log.Fatal(err)
 		}
