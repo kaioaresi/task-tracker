@@ -16,7 +16,7 @@ func Help() {
 	fmt.Println("    usage: cli add 'task description'")
 	fmt.Println("  list: list all tasks")
 	fmt.Println("    usage: cli list")
-	fmt.Println("    usage: cli list <status(todo|in-progress)>")
+	fmt.Println("    usage: cli list <status(todo|in-progress|notdone)>")
 	fmt.Println("  update: update a task description")
 	fmt.Println("    usage: cli update <taskID> 'new task description'")
 	fmt.Println("  delete: delete a task")

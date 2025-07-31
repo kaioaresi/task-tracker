@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 	"task-tracker/pkg/task"
 	"task-tracker/pkg/utils"
 )
@@ -41,13 +42,23 @@ func main() {
 			return
 		}
 
+		if strings.ToLower(os.Args[2]) == "notdone" {
+			tasks, err := t.ListNotDone()
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			task.DisplayTasksTable(tasks)
+
+			return
+		}
+
 		taskByStatus, err := t.ListTaskByStatus(os.Args[2])
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		task.DisplayTasksTable(taskByStatus)
-
 	case "update":
 		if len(os.Args) < 3 {
 			log.Println("Error: you need to info description")

@@ -21,7 +21,7 @@ type Task struct {
 }
 
 const (
-	fileName   = "/tmp/tasks.json"
+	fileName   = "tasks.json"
 	INPROGRESS = "IN-PROGRESS"
 	DONE       = "DONE"
 	TODO       = "TODO"
@@ -219,6 +219,22 @@ func (t Task) ListTaskByStatus(status string) ([]Task, error) {
 	}
 
 	return sliceTasks, nil
+}
+
+func (t Task) ListNotDone() ([]Task, error) {
+	tasks, err := t.Read()
+	if err != nil {
+		return nil, utils.ErrorF("failed to list not done tasks", err)
+	}
+
+	sliceNotDone := []Task{}
+	for _, task := range tasks {
+		if task.Status != DONE {
+			sliceNotDone = append(sliceNotDone, task)
+		}
+	}
+
+	return sliceNotDone, nil
 }
 
 func DisplayTasksTable(tasks []Task) {
