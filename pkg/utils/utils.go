@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 var insufficientParameters = errors.New("insufficient parameters")
@@ -47,4 +48,13 @@ func CheckInput(input []string) error {
 		return ErrorF("bad input", emptyDescription)
 	}
 	return nil
+}
+
+func InputToInt(input string) (int, error) {
+	number, err := strconv.Atoi(input)
+	if err != nil {
+		return 0, ErrorF("failed to convert input to int", err)
+	}
+
+	return number, nil
 }

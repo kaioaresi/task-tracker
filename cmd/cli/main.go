@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"strconv"
 	"task-tracker/pkg/task"
 	"task-tracker/pkg/utils"
 )
@@ -62,34 +61,47 @@ func main() {
 			return
 		}
 
-		taskID, _ := strconv.Atoi(os.Args[2])
+		taskID, err := utils.InputToInt(os.Args[2])
+		if err != nil {
+			log.Fatalln(err)
+		}
 
 		if err := t.Update(taskID, os.Args[3]); err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 	case "delete":
 		if err := utils.CheckInput(os.Args); err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 
-		taskID, _ := strconv.Atoi(os.Args[2])
+		taskID, err := utils.InputToInt(os.Args[2])
+		if err != nil {
+			log.Fatalln(err)
+		}
 		if err := t.Delete(taskID); err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 	case "mark-in-progress":
 		if err := utils.CheckInput(os.Args); err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
-		taskID, _ := strconv.Atoi(os.Args[2])
+		taskID, err := utils.InputToInt(os.Args[2])
+		if err != nil {
+			log.Fatalln(err)
+		}
 		if err := t.ChangeStatus(taskID, task.INPROGRESS); err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 	case "mark-done":
 		if err := utils.CheckInput(os.Args); err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 
-		taskID, _ := strconv.Atoi(os.Args[2])
+		taskID, err := utils.InputToInt(os.Args[2])
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		if err := t.ChangeStatus(taskID, task.DONE); err != nil {
 			log.Fatal(err)
 		}
