@@ -38,7 +38,7 @@ func NewTask(description string) *Task {
 func (t *Task) Add() error {
 	sliceTasks, err := t.Read()
 	if err != nil {
-		return utils.Error(err)
+		return utils.ErrorF(fmt.Sprintf("failed to read existing tasks to add new task: %s", fileName), err)
 	}
 
 	t.ID = getMaxID(sliceTasks) + 1
@@ -46,7 +46,7 @@ func (t *Task) Add() error {
 
 	err = t.Save(sliceTasks)
 	if err != nil {
-		return utils.Error(err)
+		return utils.ErrorF(fmt.Sprintf("failed to save new task (ID: %d)", t.ID), err)
 	}
 
 	log.Println("Task added successfully (ID:)", t.ID)
@@ -60,7 +60,7 @@ func (t *Task) Read() ([]Task, error) {
 		if os.IsNotExist(err) {
 			return []Task{}, nil
 		}
-		return nil, utils.ErrorF("Error to read task file", err)
+		return nil, utils.ErrorF(fmt.Sprintf("failed to read task file '%s'", fileName), err)
 	}
 
 	if len(bData) == 0 {
@@ -70,7 +70,7 @@ func (t *Task) Read() ([]Task, error) {
 	var tasks []Task
 	err = json.Unmarshal(bData, &tasks)
 	if err != nil {
-		return nil, utils.ErrorF("Error to Unmarshal json file", err)
+		return nil, utils.ErrorF(fmt.Sprintf("failed to Unmarshal file '%s'", fileName), err)
 	}
 
 	return tasks, nil
@@ -82,7 +82,7 @@ func (t *Task) Update(taskID int, description string) error {
 
 	tasks, err := t.Read()
 	if err != nil {
-		return err
+		return utils.ErrorF(fmt.Sprintf("failed to read file '%s' on update %d task ", fileName, t.ID), err)
 	}
 
 	for i := range tasks {
@@ -92,13 +92,17 @@ func (t *Task) Update(taskID int, description string) error {
 		}
 	}
 
-	return t.Save(tasks)
+	if err := t.Save(tasks); err != nil {
+		return utils.ErrorF(fmt.Sprintf("failed to save update task %d in file '%s'", t.ID, fileName), err)
+	}
+
+	return nil
 }
 
 func (t *Task) Delete(taskID int) error {
 	tasks, err := t.Read()
 	if err != nil {
-		return err
+		return utils.ErrorF(fmt.Sprintf("failed to delete task id '%d' in file '%s'", taskID, fileName), err)
 	}
 
 	indexDelete := -1
@@ -110,13 +114,13 @@ func (t *Task) Delete(taskID int) error {
 	}
 
 	if indexDelete == -1 {
-		return fmt.Errorf("Task %v not found", taskID)
+		return utils.ErrorF(fmt.Sprintf("task %d not found on file '%s'", taskID, fileName), err)
 	}
 
 	tasks = append(tasks[:indexDelete], tasks[indexDelete+1:]...)
 	err = t.Save(tasks)
 	if err != nil {
-		return utils.ErrorF("Error to delete task", err)
+		return utils.ErrorF(fmt.Sprintf("failed to delete task %d on delete workload in file '%s'", taskID, fileName), err)
 	}
 
 	return nil
@@ -128,7 +132,7 @@ func (t *Task) ChangeStatus(taskID int, status string) error {
 
 	tasks, err := t.Read()
 	if err != nil {
-		return err
+		return utils.ErrorF(fmt.Sprintf("failed to read file '%s' in change status task %d", fileName, taskID), err)
 	}
 
 	indexNotFount := -1
@@ -141,11 +145,14 @@ func (t *Task) ChangeStatus(taskID int, status string) error {
 	}
 
 	if indexNotFount == -1 {
-		return fmt.Errorf("Task %v not found", taskID)
+		return utils.ErrorF(fmt.Sprintf("failed task %d not found in file '%s'", taskID, fileName), err)
 	}
 
-	return t.Save(tasks)
+	if err := t.Save(tasks); err != nil {
+		return utils.ErrorF(fmt.Sprintf("failed to save status change task %d", taskID), err)
+	}
 
+	return nil
 }
 
 func getMaxID(sliceTasks []Task) int {
@@ -162,12 +169,11 @@ func getMaxID(sliceTasks []Task) int {
 func (t *Task) Save(tasks []Task) error {
 	jsonData, err := json.MarshalIndent(tasks, "", " ")
 	if err != nil {
-		return utils.ErrorF("Error to marshal data", err)
+		return utils.ErrorF(fmt.Sprintf("failed to marshal data to save in file '%s'", fileName), err)
 	}
 
-	err = os.WriteFile(fileName, jsonData, 0644)
-	if err != nil {
-		return utils.ErrorF("Error to write a file", err)
+	if err = os.WriteFile(fileName, jsonData, 0644); err != nil {
+		return utils.ErrorF(fmt.Sprintf("failed to write a file '%s' on save", fileName), err)
 	}
 
 	return nil
@@ -176,7 +182,7 @@ func (t *Task) Save(tasks []Task) error {
 func (t Task) List() ([]Task, error) {
 	tasks, err := t.Read()
 	if err != nil {
-		return nil, utils.Error(err)
+		return nil, utils.ErrorF(fmt.Sprintf("failed to list tasks in file '%s'", fileName), err)
 	}
 	return tasks, nil
 }
@@ -184,7 +190,7 @@ func (t Task) List() ([]Task, error) {
 func (t Task) ListTaskByStatus(status string) ([]Task, error) {
 	tasks, err := t.Read()
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrorF(fmt.Sprintf("failed to list tasks by status in file '%s'", fileName), err)
 	}
 
 	sliceTasks := []Task{}
