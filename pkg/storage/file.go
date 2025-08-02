@@ -7,7 +7,11 @@ import (
 )
 
 func CreateFile(fileName string) (*os.File, error) {
-	return os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, utils.ErrorF("failed to open file", err)
+	}
+	return file, nil
 }
 
 func CheckFile(fileName string) error {

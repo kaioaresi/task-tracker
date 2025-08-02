@@ -28,14 +28,7 @@ func Help() {
 }
 
 func ErrorF(msg string, err error) error {
-	if err != nil {
-		return fmt.Errorf("Error: %s %w", msg, err)
-	}
-	return nil
-}
-
-func Error(err error) error {
-	return err
+	return fmt.Errorf("Error: %s %w", msg, err)
 }
 
 func CheckInput(input []string) error {
